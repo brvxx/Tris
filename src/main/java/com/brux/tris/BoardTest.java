@@ -10,7 +10,7 @@ public class BoardTest {
 
         // Stato iniziale
         System.out.println("Board vuota, risultato atteso: ONGOING");
-        System.out.println("Risultato: " + board.checkWinner());
+        System.out.println("Risultato: " + board.getStatus());
         printBoard(board);
 
         // Giocatore X mette al centro
@@ -32,7 +32,7 @@ public class BoardTest {
         System.out.println("\nDopo altre mosse:");
         printBoard(board);
         System.out.println("Risultato atteso: WIN_O");
-        System.out.println("Risultato: " + board.checkWinner());
+        System.out.println("Risultato: " + board.getStatus());
 
         // Mosse disponibili per O
         List<Move> availableMoves = board.getAvailableMoves(Symbol.O);

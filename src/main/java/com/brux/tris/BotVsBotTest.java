@@ -10,15 +10,15 @@ public class BotVsBotTest {
         Player botO = new IntermediateBot(Symbol.O);
 
         Player current = botX;
-        GameResult result;
+        BoardStatus result;
 
         System.out.println("Inizio partita BOT vs BOT\n");
 
         // Mossa strane iniziali
-        /*board.applyMove(new Move(1, 0, Symbol.O));
+        board.applyMove(new Move(1, 0, Symbol.O));
         board.applyMove(new Move(0, 2, Symbol.X));
         board.applyMove(new Move(2, 1, Symbol.O));
-        printBoard(board);*/
+        printBoard(board);
 
         while (true) {
             // Il player fa la sua mossa
@@ -34,8 +34,8 @@ public class BotVsBotTest {
             printBoard(board);
 
             // Controlla stato partita
-            result = board.checkWinner();
-            if (result != GameResult.ONGOING) {
+            result = board.getStatus();
+            if (result != BoardStatus.ONGOING) {
                 System.out.println("\nPartita terminata: " + result);
                 break;
             }

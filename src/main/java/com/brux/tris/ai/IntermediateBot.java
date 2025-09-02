@@ -111,7 +111,7 @@ public class IntermediateBot extends BotPlayer {
             Board copy = copyBoard(board);
             copy.applyMove(move);
 
-            if (copy.checkWinner() == (symbol == Symbol.X ? GameResult.WIN_X : GameResult.WIN_O)) {
+            if (copy.getStatus() == (symbol == Symbol.X ? BoardStatus.WIN_X : BoardStatus.WIN_O)) {
                 return move;
             }
         }
