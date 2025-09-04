@@ -11,7 +11,7 @@ public class ScoreKeeper {
         reset();
     }
 
-    private void reset() {
+    public void reset() {
         scoreX = 0;
         scoreO = 0;
     }

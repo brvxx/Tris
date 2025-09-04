@@ -23,7 +23,7 @@ public class GameHumanTest {
 
         Game game = new Game(humanSymbol == Symbol.X ? human : bot,
                 humanSymbol == Symbol.X ? bot : human,
-                scoreKeeper);
+                scoreKeeper, Mode.SINGLE_PLAYER);
 
         Player starter = (humanSymbol == Symbol.X) ? human : bot; // parte X di default
 

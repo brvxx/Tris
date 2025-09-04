@@ -14,14 +14,16 @@ public class Game {
     private final Player playerX;
     private final Player playerO;
     private final Board board;
+    private final Mode mode;
     private Player currentPlayer;
     private final ScoreKeeper scoreKeeper;      // tiene traccia dello score della partita attuale
 
     /* Costruttore */
-    public Game(Player playerX, Player playerO, ScoreKeeper scoreKeeper) {
+    public Game(Player playerX, Player playerO, ScoreKeeper scoreKeeper, Mode mode) {
         this.playerX = playerX;
         this.playerO = playerO;
         this.scoreKeeper = scoreKeeper;
+        this.mode = mode;
 
         this.board = new Board();
         this.currentPlayer = playerX;   // Di default a partire nel primo round della partita è il simbolo X
@@ -33,6 +35,10 @@ public class Game {
 
     public Board getBoard() {
         return board;
+    }
+
+    public Mode getMode() {
+        return mode;
     }
 
     /**

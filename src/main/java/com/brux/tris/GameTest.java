@@ -10,7 +10,7 @@ public class GameTest {
         Player botX = new IntermediateBot(Symbol.X);
         Player botO = new IntermediateBot(Symbol.O);
 
-        Game game = new Game(botX, botO, scoreKeeper);
+        Game game = new Game(botX, botO, scoreKeeper, Mode.SINGLE_PLAYER);
 
         Player starter = botX; // primo round parte X
 
