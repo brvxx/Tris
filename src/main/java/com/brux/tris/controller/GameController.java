@@ -11,11 +11,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.function.Function;
+
 /* Controller che funge da ponte tra UI e logica del gioco */
 public class GameController {
 
     private static final String DEFAULT_CELL_STYLE = "-fx-background-color: rgba(0, 0, 0, 0.15);";
-    private static final String WIN_CELL_STYLE     = "-fx-background-color: rgba(0, 0, 0, 0.35);";
+    private static final String WIN_CELL_STYLE     = "-fx-background-color: rgba(0, 0, 0, 0.40);";
 
     /* Collegamenti coi controlli definiti nella GUI. Si noti che non verranno collegati qui i singoli bottoni delle caselle della griglia, per
     *  evitare di avere 9 riferimenti differenti, ma si utilizzerà un array bidimensionale per rendere il tutto più pulito */
@@ -23,7 +25,19 @@ public class GameController {
     private ChoiceBox<String> modeChoice;
 
     @FXML
+    private ChoiceBox<String> diffChoice;
+
+    @FXML
     private ChoiceBox<String> symbolChoice;
+
+    @FXML
+    private Label modeLabel;
+
+    @FXML
+    private Label diffLabel;
+
+    @FXML
+    private Label symbolLabel;
 
     @FXML
     private Label scoreLabel;
@@ -40,12 +54,6 @@ public class GameController {
     @FXML
     private GridPane boardGrid;
 
-    @FXML
-    private Label symbolLabel;
-
-    @FXML
-    private Label modeLabel;
-
     /* Matrice di Bottoni che utilizzeremo per riferire le varie celle in modo uniforme (settata dentro initialize()) */
     private Button[][] cells;
 
@@ -59,6 +67,29 @@ public class GameController {
 
     /* Risultato del round precedente. Serve per startare il successivo */
     private BoardStatus lastRoundStatus;
+
+    /* Stato interno per ricordare la difficoltà scelta */
+    private enum Difficulty {
+        EASY {
+            @Override
+            public String toString() {
+                return "Facile";
+            }
+        },
+        INTERMEDIATE {
+            @Override
+            public String toString() {
+                return "Intermedio";
+            }
+        },
+        EXTREME {
+            @Override
+            public String toString() {
+                return "Estremo";
+            }
+        }
+    }
+    private Difficulty selectedDifficulty;
 
     /* Metodo chiamato da JavaFX una volta che la GUI è stata creata a seguito del loading del FXML per prepararla ad essere utilizzata */
     @FXML
@@ -83,6 +114,7 @@ public class GameController {
 
         // 2. Popolamento delle ChoiceBox
         modeChoice.getItems().addAll("Single Player", "Scontro");
+        diffChoice.getItems().addAll("Facile", "Intermedio", "Estremo");
         symbolChoice.getItems().addAll("X", "O");
 
         // 3. Inizializzazione del punteggio iniziale
@@ -90,7 +122,7 @@ public class GameController {
         scoreLabel.setText("X: 0  |  O: 0");
 
         // 4. Messaggio iniziale
-        statusLabel.setText("Benvenuto! Scegli modalità di gioco.");
+        statusLabel.setText("Benvenuto! Scegli modalità di gioco");
 
         // 5. Listener scelta della modalità
         modeChoice.setOnAction(e -> {
@@ -99,28 +131,52 @@ public class GameController {
             if (mode == null) return;   // per evitare di incorrere in NPE qualora si resetti la modeChoice (azione triggera il OnAction)
 
             if (mode.equals("Single Player")) {
-                symbolChoice.setVisible(true);
-                symbolLabel.setVisible(true);
-                statusLabel.setText("Scegli se vuoi giocare con X o O.");
+                // Si rende visibile la scelta della difficoltà
+                diffChoice.setVisible(true);
+                diffLabel.setVisible(true);
+
+                statusLabel.setText("Scegli la difficoltà del bot");
             } else if (mode.equals("Scontro")) {
+                diffChoice.setVisible(false);
+                diffLabel.setVisible(false);
                 symbolChoice.setVisible(false);
                 symbolLabel.setVisible(false);
+
                 startMultiplayerGame();
             }
         });
 
-        // 6. Listener scelta del simbolo (solo per single-player)
+        // 6. Listener scelta della difficoltà del bot
+        diffChoice.setOnAction(e -> {
+            String choice = diffChoice.getValue();
+            if (choice == null) return;
+
+            switch (choice) {
+                case "Facile"     -> selectedDifficulty = Difficulty.EASY;
+                case "Intermedio" -> selectedDifficulty = Difficulty.INTERMEDIATE;
+                case "Estremo"    -> selectedDifficulty = Difficulty.EXTREME;
+                default           -> selectedDifficulty = Difficulty.INTERMEDIATE;  // fallback, non dovrebbe succedere
+            }
+
+            // Si rende visibile la scelta del simbolo
+            symbolChoice.setVisible(true);
+            symbolLabel.setVisible(true);
+
+            statusLabel.setText("Scegli se vuoi giocare con X o O");
+        });
+
+        // 7. Listener scelta del simbolo (solo per single-player)
         symbolChoice.setOnAction(e -> {
             String choice = symbolChoice.getValue();
-            if (choice != null) {   // per evitare di incorrere in NPE qualora si resetti la symbolChoice (azione triggera il OnAction)
+            if (choice != null && selectedDifficulty != null) { // per evitare di incorrere in NPE qualora si resetti la symbolChoice (azione triggera il OnAction)
                 startSinglePlayerGame(choice.equals("X") ? Symbol.X : Symbol.O);
             }
         });
 
-        // 7. Listener bottone di clearing della partita
+        // 8. Listener bottone di clearing della partita
         clearButton.setOnAction(e -> handleClear());
 
-        // 8. Listener bottone di nuovo round
+        // 9. Listener bottone di nuovo round
         newRoundButton.setOnAction(e -> handleNewRound());
     }
 
@@ -144,15 +200,18 @@ public class GameController {
 
     private void handleClear() {
         // 1. Reset logica
-        scoreKeeper.reset();    // reset dello score
-        updateScore();          // mostra sulla scoreLabel lo score aggiornato
-        game = null;            // annulla la partita corrente
-        lastRoundStatus = null; // resetta lo stato del round precedente
+        scoreKeeper.reset();        // reset dello score
+        updateScore();              // mostra sulla scoreLabel lo score aggiornato
+        game = null;                // annulla la partita corrente
+        lastRoundStatus = null;     // resetta lo stato del round precedente
+        selectedDifficulty = null;  // resetta la scelta della difficoltà del bot
 
 
         // 2. Reset interfaccia
         modeChoice.setVisible(true);
         modeLabel.setVisible(true);
+        diffChoice.setVisible(false);
+        diffLabel.setVisible(false);
         symbolChoice.setVisible(false);
         symbolLabel.setVisible(false);
         clearButton.setVisible(false);  // clear torna invisibile
@@ -171,7 +230,9 @@ public class GameController {
 
         // Reset scelta nelle ChoiceBox
         modeChoice.getSelectionModel().clearSelection();
+        diffChoice.getSelectionModel().clearSelection();
         symbolChoice.getSelectionModel().clearSelection();
+
 
         statusLabel.setText("Benvenuto! Scegli modalità di gioco.");
     }
@@ -205,8 +266,20 @@ public class GameController {
         scoreKeeper.reset();
         updateScore();
 
-        playerX = (humanSymbol == Symbol.X) ? new HumanPlayer(Symbol.X) : new IntermediateBot(Symbol.X);
-        playerO = (humanSymbol == Symbol.O) ? new HumanPlayer(Symbol.O) : new IntermediateBot(Symbol.O);
+        Function<Symbol, Player> botFor = (sym) -> switch (selectedDifficulty) {
+            case EASY         -> new EasyBot(sym);
+            case INTERMEDIATE -> new IntermediateBot(sym);
+            case EXTREME      -> new ExtremeBot(sym);
+            default           -> new IntermediateBot(sym); // fallback, non dovrebbe succedere
+        };
+
+        if (humanSymbol == Symbol.X) {
+            playerX = new HumanPlayer(Symbol.X);
+            playerO = botFor.apply(Symbol.O);
+        } else {
+            playerX = botFor.apply(Symbol.X);
+            playerO = new HumanPlayer(Symbol.O);
+        }
 
         game = new Game(playerX, playerO, scoreKeeper, Mode.SINGLE_PLAYER);
         game.startNewRound(playerX);    // Al primo round parte sempre PlayerX
@@ -214,13 +287,15 @@ public class GameController {
         // Nascosti controlli di scelta
         modeChoice.setVisible(false);
         modeLabel.setVisible(false);
+        diffChoice.setVisible(false);
+        diffLabel.setVisible(false);
         symbolChoice.setVisible(false);
         symbolLabel.setVisible(false);
 
         // Reso visibile il pulsante di clearing
         clearButton.setVisible(true);
 
-        statusLabel.setText("Modalità Single Player. Tocca a X!");
+        statusLabel.setText("Modalità Single Player " + selectedDifficulty + ". Tocca a X!");
 
         // Se il primo player a dover giocare la partita è il bot, si avvia la sua mossa
         if (game.getCurrentPlayer() instanceof BotPlayer) {
@@ -241,6 +316,8 @@ public class GameController {
         // Nascondi controlli di scelta
         modeChoice.setVisible(false);
         modeLabel.setVisible(false);
+        diffChoice.setVisible(false);
+        diffLabel.setVisible(false);
         symbolChoice.setVisible(false);
         symbolLabel.setVisible(false);
 

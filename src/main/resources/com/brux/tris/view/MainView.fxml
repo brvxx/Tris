@@ -22,6 +22,9 @@
                 <Label fx:id="modeLabel" text="Modalità:" />
                 <ChoiceBox fx:id="modeChoice" style="-fx-background-color: rgba(0, 0, 0, 0.1);" />
             <Region prefHeight="25.0" prefWidth="14.0" />
+            <Label fx:id="diffLabel" text="Difficoltà:" visible="false" />
+            <ChoiceBox fx:id="diffChoice" style="-fx-background-color: rgba(0, 0, 0, 0.1);" visible="false" />
+            <Region prefHeight="25.0" prefWidth="14.0" />
                 <Label fx:id="symbolLabel" text="Simbolo:" visible="false" />
                 <ChoiceBox fx:id="symbolChoice" style="-fx-background-color: rgba(0, 0, 0, 0.1);" visible="false" />
             </HBox>
@@ -99,12 +102,12 @@
     <bottom>
       <HBox BorderPane.alignment="CENTER">
          <children>
-            <Region prefHeight="30.0" prefWidth="161.0" />
-              <Label fx:id="statusLabel" alignment="CENTER" maxWidth="Infinity" prefHeight="30.0" prefWidth="297.0" text="Benvenuto! Scegli modalità di gioco." textFill="#000000b2">
+            <Region prefHeight="30.0" prefWidth="125.0" />
+              <Label fx:id="statusLabel" alignment="CENTER" maxWidth="Infinity" prefHeight="30.0" prefWidth="348.0" text="Benvenuto! Scegli modalità di gioco." textFill="#000000b2">
                <font>
                   <Font name="System Bold" size="16.0" />
                </font></Label>
-            <Region prefHeight="30.0" prefWidth="63.0" /> <!-- inizialmente nascosto -->
+            <Region prefHeight="30.0" prefWidth="32.0" /> <!-- inizialmente nascosto -->
                 <Button fx:id="clearButton" prefHeight="25.0" prefWidth="70.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);" text="Clear" visible="false" />
          </children>
       </HBox>
